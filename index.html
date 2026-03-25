@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>С Днем Рождения, Вика! 🎂 Победа за нами!</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background: #1a0b0e; /* Глубокий черно-красный */
+            color: #fff; /* Чистый белый текст */
+            font-family: 'Georgia', serif;
+            overflow-y: auto; overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #800000 0%, #000 80%);
+            z-index: -2;
+        }
+        #canvas { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
+        .container {
+            position: relative; z-index: 10;
+            width: 90%; max-width: 500px; margin: 0 auto; text-align: center;
+            padding-top: 10vh; padding-bottom: 50vh;
+        }
+        h1 {
+            font-size: 3.5rem; color: #ff4d6d;
+            text-shadow: 0 0 20px rgba(255, 77, 109, 0.6);
+            margin-bottom: 20px; font-style: italic; opacity: 0;
+            transition: opacity 2s ease-in;
+        }
+        h1.visible { opacity: 1; }
+        .cake-start {
+            font-size: 6rem; margin-top: 10vh; margin-bottom: 50px;
+            display: inline-block; opacity: 0; transform: scale(0);
+            transition: all 2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .cake-start.visible { opacity: 1; transform: scale(1); animation: cakePulse 2.5s infinite 2s; }
+        .photo-gallery {
+            position: relative; width: 100%; max-width: 400px;
+            height: 400px; margin: 50px auto; overflow: hidden;
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(255, 77, 109, 0.4);
+            border: 5px solid rgba(255, 255, 255, 0.1); opacity: 0;
+            transition: opacity 2s ease-in 1s;
+        }
+        .photo-gallery.visible { opacity: 1; }
+        .photo-gallery img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out;
+            border-radius: 15px;
+        }
+        .photo-gallery img.active { opacity: 1; }
+        .poem-content { margin-top: 80px; }
+        p {
+            font-size: 1.4rem; line-height: 2.2; margin: 60px 0;
+            color: #f0f0f0; opacity: 0.1; transform: translateY(20px); transition: all 1s ease-out;
+        }
+        p.visible { opacity: 1; transform: translateY(0); }
+        strong { color: #ff4d6d; font-weight: bold; }
+        .victory-text { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); font-style: italic; }
+        .cake-button {
+            position: fixed; bottom: 30px; right: 30px;
+            font-size: 3rem; width: 60px; height: 60px;
+            background-color: rgba(255, 77, 109, 0.7);
+            border-radius: 50%; box-shadow: 0 5px 15px rgba(255, 77, 109, 0.5);
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; z-index: 100; opacity: 0;
+            transition: all 0.5s ease; pointer-events: none;
+        }
+        .cake-button.visible { opacity: 1; pointer-events: auto; animation: btnPulse 2s infinite; }
+        .final-heart { font-size: 4rem; color: #ff4d6d; margin-top: 80px; animation: pulse 2s infinite; }
+        @keyframes cakePulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes btnPulse { 0% { box-shadow: 0 0 10px #ff4d6d; } 50% { box-shadow: 0 0 25px #ff4d6d; } 100% { box-shadow: 0 0 10px #ff4d6d; } }
+    </style>
+</head>
+<body>
+    <div class="bg-overlay"></div>
+    <canvas id="canvas"></canvas>
+    <div class="cake-button" id="cake-btn" onclick="resetWowEffect()">🎂</div>
+    <div class="container">
+        <div class="cake-start" id="cake-start">🎂</div>
+        <h1 id="title">С Днем Рождения!</h1>
+        <div class="photo-gallery" id="gallery">
+            <img src="image_4.png.JPG" class="active" alt="Вика Кигуруми">
+            <img src="image_5.png.JPG" alt="Вика Поцелуй">
+            <img src="image_6.png.JPG" alt="Вика Селфи">
+            <img src="image_7.png.JPG" alt="Вика с Подругами">
+            <img src="image_8.png.JPG" alt="Вика Новый Год">
+        </div>
+        <div class="poem-content">
+            <p>Хочу сказать тебе большое спасибо за то, что ты смогла принять меня таким, какой я есть.</p>
+            <p>Я не всегда хорошо себя показывал, и да, тебе было со мной нелегко:</p>
+            <p>бесил тебя, донимал, доставал... Я бесконечно рад, что ты всё равно любишь меня и остаешься рядом.</p>
+            <p>Я очень ценю это и пытаюсь радовать тебя каждый день.</p>
+            <p>Дальше нас ждут серьезные испытания — мы будем мало видеться и проводить время вместе,</p>
+            <p>но главное — пройти этот этап.</p>
+            <p>Я буду стараться тебя радовать, поддерживать и хочу поздравить тебя с праздниками,</p>
+            <p style="font-size: 1.8rem;"><strong>с твоим 18-летием, зайка! Люблю тебя сильно!</strong></p>
+            <p>Желаю, чтобы все твои мечты сбылись, чтобы ты была счастлива,</p>
+            <p>а родные всегда были рядом и дарили тепло!!!</p>
+            <p>Мы через многое прошли, и нам предстоит пройти еще больше,</p>
+            <p>преодолеть множество трудностей, но мы сможем,</p>
+            <p style="font-size: 1.6rem;"><strong>потому что твое имя, <span class="victory-text">Виктория</span>, означает Победу.</strong></p>
+            <p>Я верю в это. Обнимаю и целую.</p>
+            <p style="font-size: 1.2rem; font-style: italic; opacity: 0.8; padding-top: 40px;">
+                Это первая часть моего подарка тебе. Надеюсь, тебе понравится.</p>
+            <p style="font-size: 1.2rem; font-style: italic; opacity: 0.8; margin-top: -30px;">
+                Я не особо умею изливать душу, но я очень старался.</p>
+            <div class="final-heart">❤</div>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function createParticle(x, y, color) {
+            return {
+                x: x, y: y, size: Math.random() * 4 + 1,
+                speedX: (Math.random() - 0.5) * 8, speedY: (Math.random() - 0.5) * 8,
+                opacity: 1, decay: Math.random() * 0.02 + 0.01,
+                color: color || `rgba(${255}, ${Math.random()*100}, ${Math.random()*100}, 1)`
+            };
+        }
+        function launchFirework() {
+            const x = Math.random() * canvas.width; const y = Math.random() * (canvas.height * 0.6);
+            const color = Math.random() > 0.5 ? '#fff' : `rgba(255, 100, 100, 1)`;
+            for (let i = 0; i < 40; i++) { particles.push(createParticle(x, y, color)); }
+        }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i]; ctx.fillStyle = p.color; ctx.globalAlpha = p.opacity;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+                p.x += p.speedX; p.y += p.speedY; p.speedY += 0.05; p.opacity -= p.decay;
+                if (p.opacity <= 0) { particles.splice(i, 1); i--; }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        const cakeStart = document.getElementById('cake-start');
+        const title = document.getElementById('title');
+        const gallery = document.getElementById('gallery');
+        const cakeBtn = document.getElementById('cake-btn');
+        const images = document.querySelectorAll('#gallery img');
+        let currentImage = 0; let galleryInterval = null;
+        function startWowEffect() {
+            initCanvas(); animateParticles();
+            paragraphs.forEach(p => p.classList.remove('visible'));
+            paragraphs.forEach(p => observer.unobserve(p));
+            launchFirework(); setTimeout(launchFirework, 200); setTimeout(launchFirework, 400);
+            setTimeout(() => { cakeStart.classList.add('visible'); title.classList.add('visible'); }, 1500);
+            setTimeout(() => { gallery.classList.add('visible'); startGallery(); }, 3500);
+            setTimeout(() => { cakeBtn.classList.add('visible'); paragraphs.forEach(p => observer.observe(p)); }, 6000);
+        }
+        function startGallery() {
+            if(galleryInterval) clearInterval(galleryInterval);
+            galleryInterval = setInterval(() => {
+                images[currentImage].classList.remove('active');
+                currentImage = (currentImage + 1) % images.length;
+                images[currentImage].classList.add('active');
+            }, 3000);
+        }
+        function resetWowEffect() {
+            window.scrollTo(0, 0); cakeStart.classList.remove('visible'); title.classList.remove('visible');
+            gallery.classList.remove('visible'); cakeBtn.classList.remove('visible');
+            if(galleryInterval) clearInterval(galleryInterval); startWowEffect();
+        }
+        const paragraphs = document.querySelectorAll('.poem-content p');
+        const observerOptions = { threshold: 0.5 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, observerOptions);
+        window.addEventListener('load', startWowEffect);
+        window.addEventListener('resize', initCanvas);
+    </script>
+</body>
+</html>
