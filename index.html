@@ -49,7 +49,7 @@
         }
         .cake-start.visible { opacity: 1; transform: scale(1); animation: cakePulse 2.5s infinite 2s; }
 
-        /* --- ГАЛЕРЕЯ (Статичная, только image_4) --- */
+        /* ГАЛЕРЕЯ */
         .photo-gallery {
             position: relative; width: 100%; max-width: 400px;
             height: 400px; margin: 50px auto; overflow: hidden;
@@ -59,56 +59,46 @@
         }
         .photo-gallery.visible { opacity: 1; }
         .photo-gallery img {
-            width: 100%; height: 100%;
-            object-fit: contain;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: contain; opacity: 0; transition: opacity 1.5s ease-in-out;
             border-radius: 15px;
         }
+        .photo-gallery img.active { opacity: 1; }
 
-        /* --- СЕКЦИЯ С ПОЗДРАВЛЕНИЕМ И ЖИВЫМ ФОНОМ (МАГИЯ ЗДЕСЬ) --- */
+        /* --- ВОТ ЗДЕСЬ МАГИЯ: СЕКЦИЯ С ПОЗДРАВЛЕНИЕМ И ФОНОМ --- */
         .poem-content {
             position: relative;
             margin-top: 100px;
             padding: 100px 5% 150px 5%; /* Отступы внутри, чтобы текст не лип к краям */
             text-align: center;
-            border-radius: 40px 40px 0 0;   /* Закруглим сверху */
+            
+            /* ФОНОВОЕ ИЗОБРАЖЕНИЕ */
+            /* БРО: Измени 'image_6.png.JPG' на имя той фотки, которую хочешь на фон за текстом! */
+            background-image: url('image_6.png.JPG'); 
+            
+            background-size: cover;          /* Фотка растягивается по всей ширине */
+            background-position: center;     /* Центрируется */
+            background-attachment: fixed;    /* Текст скроллится, фотка стоит (Параллакс) */
+            background-repeat: no-repeat;
+            
+            border-radius: 40px 40px 0 0;   /* Закруглим сверху, чтобы отделить от галереи */
             box-shadow: 0 -20px 40px rgba(0,0,0,0.8); /* Тень сверху */
             overflow: hidden; /* Чтобы фильтр не вылезал */
-            transition: opacity 2s ease-in;
-            opacity: 0; /* Изначально скрыто */
-            background-color: #000; /* Фон по умолчанию, если фотки не загрузятся */
         }
 
-        /* КОНТЕЙНЕР ДЛЯ ЖИВОГО ФОНА ЗА ТЕКСТОМ */
-        .poem-background-images {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; /* Фон над фоном по умолчанию */
-            overflow: hidden;
-            background-attachment: fixed; /* Эффект фиксации (Параллакс) */
-            background-position: center;
-            background-size: cover;
-        }
-
-        .poem-background-images img {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; /* Фон растягивается по всей ширине */
-            opacity: 0; transition: opacity 1.5s ease-in-out;
-        }
-        .poem-background-images img.active { opacity: 1; }
-
-        /* ТЕМНЫЙ ФИЛЬТР ПОВЕРХ ЖИВОГО ФОНА */
+        /* ТЕМНЫЙ ФИЛЬТР ПОВЕРХ ФОТКИ (Чтобы текст читался) */
         .poem-content::before {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.75); /* Черный цвет с прозрачностью 75% */
-            z-index: 2; /* Фильтр над живым фоном */
+            z-index: 1; /* Фильтр над фоткой */
         }
 
         /* Переносим текст над фильтром */
         .poem-content p, .poem-content .final-heart {
             position: relative;
-            z-index: 3; /* Текст над фильтром */
+            z-index: 2; /* Текст над фильтром */
         }
 
         p {
@@ -127,7 +117,7 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         @keyframes btnPulse { 0% { box-shadow: 0 0 10px #ff4d6d; } 50% { box-shadow: 0 0 25px #ff4d6d; } 100% { box-shadow: 0 0 10px #ff4d6d; } }
 
-        /* Адаптация для мобильных */
+        /* Адаптация для мобильных: отключаем параллакс, т.к. на старых телефонах глючит */
         @media (max-width: 768px) {
             .poem-content { background-attachment: scroll; }
             p { font-size: 1.2rem; line-height: 1.8; margin: 40px 0; }
@@ -145,18 +135,15 @@
         <div class="cake-start" id="cake-start">🎂</div>
         <h1 id="title">С Днем Рождения!</h1>
         <div class="photo-gallery" id="gallery">
-            <img src="image_4.png.JPG" alt="Вика Кигуруми">
+            <img src="image_4.png.JPG" class="active" alt="Вика Кигуруми">
+            <img src="image_5.png.JPG" alt="Вика Поцелуй">
+            <img src="image_6.png.JPG" alt="Вика Селфи">
+            <img src="image_7.png.JPG" alt="Вика с Подругами">
+            <img src="image_8.png.JPG" alt="Вика Новый Год">
         </div>
     </div>
 
     <div class="poem-content" id="poem-zone">
-        <div class="poem-background-images" id="poem-bg-images">
-            <img src="image_5.png.JPG" class="active" alt="Фон 1">
-            <img src="image_6.png.JPG" alt="Фон 2">
-            <img src="image_7.png.JPG" alt="Фон 3">
-            <img src="image_8.png.JPG" alt="Фон 4">
-        </div>
-
         <p>Хочу сказать тебе большое спасибо за то, что ты смогла принять меня таким, какой я есть.</p>
         <p>Я не всегда хорошо себя показывал, и да, тебе было со мной нелегко:</p>
         <p>бесил тебя, донимал, доставал... Я бесконечно рад, что ты всё равно любишь меня и остаешься рядом.</p>
@@ -230,9 +217,9 @@
         const gallery = document.getElementById('gallery');
         const cakeBtn = document.getElementById('cake-btn');
         const poemZone = document.getElementById('poem-zone');
-        const poemBgImages = document.querySelectorAll('#poem-bg-images img');
-        let currentPoemBgImage = 0;
-        let poemBgInterval = null;
+        const images = document.querySelectorAll('#gallery img');
+        let currentImage = 0;
+        let galleryInterval = null;
 
         function startWowEffect() {
             initCanvas();
@@ -243,24 +230,22 @@
             launchFirework(); setTimeout(launchFirework, 300); setTimeout(launchFirework, 600);
             
             setTimeout(() => { cakeStart.classList.add('visible'); title.classList.add('visible'); }, 1500);
-            setTimeout(() => { gallery.classList.add('visible'); }, 3500); // Галерея статична
+            setTimeout(() => { gallery.classList.add('visible'); startGallery(); }, 3500);
             
-            // Секция поздравления с живым фоном тоже плавно проявляется
+            // Секция поздравления с фоном тоже плавно проявляется
             setTimeout(() => {
                 poemZone.style.opacity = '1'; 
                 cakeBtn.classList.add('visible');
                 paragraphs.forEach(p => observer.observe(p));
-                startPoemBgGallery(); // Запускаем переключение живого фона
             }, 6000);
         }
 
-        // --- ЖИВОЙ ФОН ЗА ТЕКСТОМ (ГАЛЕРЕЯ ДЛЯ ФОНА) ---
-        function startPoemBgGallery() {
-            if(poemBgInterval) clearInterval(poemBgInterval);
-            poemBgInterval = setInterval(() => {
-                poemBgImages[currentPoemBgImage].classList.remove('active');
-                currentPoemBgImage = (currentPoemBgImage + 1) % poemBgImages.length;
-                poemBgImages[currentPoemBgImage].classList.add('active');
+        function startGallery() {
+            if(galleryInterval) clearInterval(galleryInterval);
+            galleryInterval = setInterval(() => {
+                images[currentImage].classList.remove('active');
+                currentImage = (currentImage + 1) % images.length;
+                images[currentImage].classList.add('active');
             }, 3000);
         }
 
@@ -268,13 +253,7 @@
             window.scrollTo(0, 0);
             cakeStart.classList.remove('visible'); title.classList.remove('visible');
             gallery.classList.remove('visible'); cakeBtn.classList.remove('visible');
-            poemZone.style.opacity = '0';
-            if(poemBgInterval) clearInterval(poemBgInterval);
-            // Прячем все фоны, кроме первого
-            poemBgImages.forEach(img => img.classList.remove('active'));
-            poemBgImages[0].classList.add('active');
-            currentPoemBgImage = 0;
-            
+            if(galleryInterval) clearInterval(galleryInterval);
             startWowEffect();
         }
 
@@ -289,6 +268,9 @@
         }, observerOptions);
 
         window.addEventListener('load', () => {
+            // Изначально скрываем зону поздравления
+            poemZone.style.opacity = '0';
+            poemZone.style.transition = 'opacity 2s ease-in';
             startWowEffect();
         });
         window.addEventListener('resize', initCanvas);
