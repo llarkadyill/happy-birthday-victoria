@@ -8,147 +8,290 @@
         body, html {
             margin: 0; padding: 0;
             width: 100%; height: 100%;
-            /* 1. БАЗОВЫЙ ФОН: Глубокий темно-бордовый */
-            background-color: #3b0a0a; 
+            background: #000; /* Глубокий черный фон для старта */
             color: #fff;
             font-family: 'Georgia', serif;
-            overflow-x: hidden;
+            overflow-y: auto; overflow-x: hidden;
             scroll-behavior: smooth;
         }
 
-        /* 2. ГЛАВНЫЙ КОНТЕЙНЕР (relative, чтобы позиционировать всё внутри) */
-        #collage-container {
+        /* КОНВЕТТИ И САЛЮТ */
+        #canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
+
+        /* КНОПКА-ТОРТ СБОКУ */
+        .cake-button {
+            position: fixed; bottom: 30px; right: 30px;
+            font-size: 3rem; width: 60px; height: 60px;
+            background-color: rgba(255, 77, 109, 0.7);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; z-index: 100; opacity: 0;
+            transition: all 0.5s ease; pointer-events: none;
+        }
+        .cake-button.visible { opacity: 1; pointer-events: auto; animation: btnPulse 2s infinite; }
+
+        /* ОСНОВНОЙ КОНТЕЙНЕР (ВЕРХНЯЯ ЧАСТЬ) */
+        .top-section {
+            position: relative; z-index: 10;
+            width: 90%; max-width: 500px; margin: 0 auto; text-align: center;
+            padding-top: 10vh; padding-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 3.5rem; color: #ff4d6d; text-shadow: 0 0 20px rgba(255, 77, 109, 0.6);
+            margin-bottom: 20px; font-style: italic; opacity: 0; transition: opacity 2s ease-in;
+        }
+        h1.visible { opacity: 1; }
+
+        .cake-start {
+            font-size: 6rem; margin-top: 10vh; margin-bottom: 50px;
+            display: inline-block; opacity: 0; transform: scale(0);
+            transition: all 2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .cake-start.visible { opacity: 1; transform: scale(1); animation: cakePulse 2.5s infinite 2s; }
+
+        /* --- ГАЛЕРЕЯ (Статичная, только image_4) --- */
+        .photo-gallery {
+            position: relative; width: 100%; max-width: 400px;
+            height: 400px; margin: 50px auto; overflow: hidden;
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(255, 77, 109, 0.4);
+            border: 5px solid rgba(255, 255, 255, 0.1); opacity: 0;
+            transition: opacity 2s ease-in 1s; background-color: rgba(0,0,0,0.3);
+        }
+        .photo-gallery.visible { opacity: 1; }
+        .photo-gallery img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+            border-radius: 15px;
+        }
+
+        /* --- СЕКЦИЯ С ПОЗДРАВЛЕНИЕМ И ЖИВЫМ ФОНОМ (МАГИЯ ЗДЕСЬ) --- */
+        .poem-content {
             position: relative;
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-            z-index: 10;
+            margin-top: 100px;
+            padding: 100px 5% 150px 5%; /* Отступы внутри, чтобы текст не лип к краям */
+            text-align: center;
+            border-radius: 40px 40px 0 0;   /* Закруглим сверху */
+            box-shadow: 0 -20px 40px rgba(0,0,0,0.8); /* Тень сверху */
+            overflow: hidden; /* Чтобы фильтр не вылезал */
+            transition: opacity 2s ease-in;
+            opacity: 0; /* Изначально скрыто */
+            background-color: #000; /* Фон по умолчанию, если фотки не загрузятся */
         }
 
-        /* 3. ФОН С ТЕКСТУРОЙ И ГИРЛЯНДАМИ */
-        #collage-background {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* БРО: Измени путь к фоновой текстуре или просто удали, если не нужна */
-            background-image: url('path/to/background_texture.jpg'); 
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-            opacity: 0.15; /* Сделать текстуру едва заметной */
-            z-index: 1;
-        }
-
-        /* 4. ЗАГОЛОВОК (С Днем Рождения!) */
-        #header-text {
-            font-size: 3rem; color: #ff4d6d;
-            text-shadow: 0 0 15px rgba(255, 77, 109, 0.6);
-            margin-top: 10vh; margin-bottom: 30px;
-            font-style: italic; text-align: center;
-            opacity: 0; transition: opacity 1s ease-in; z-index: 20;
-        }
-        #header-text.visible { opacity: 1; }
-
-        /* 5. ЦЕНТРАЛЬНОЕ ФОТО (самое большое) */
-        #central-photo {
-            width: 90%; max-width: 400px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            border: 5px solid rgba(255, 255, 255, 0.1);
-            position: relative; z-index: 30;
-            opacity: 0; transition: opacity 1s ease-in 0.5s;
-        }
-        #central-photo.visible { opacity: 1; }
-
-        /* 6. КОНТЕЙНЕР ДЛЯ РАЗБРОСАННЫХ ФОТО НА ФОНЕ */
-        #scattered-photos {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 2; /* Ниже заголовка и центрального фото */
-        }
-
-        /* Общие стили для разбросанных фото */
-        .scattered-photo {
+        /* КОНТЕЙНЕР ДЛЯ ЖИВОГО ФОНА ЗА ТЕКСТОМ */
+        .poem-background-images {
             position: absolute;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
-            opacity: 0; /* Скрыты по умолчанию */
-            transition: opacity 1s ease-in;
-            border: 3px solid rgba(255, 255, 255, 0.05);
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; /* Фон над фоном по умолчанию */
+            overflow: hidden;
+            background-attachment: fixed; /* Эффект фиксации (Параллакс) */
+            background-position: center;
+            background-size: cover;
         }
-        .scattered-photo.visible { opacity: 1; }
 
-        /* БРО: НАСТРОЙКА РАЗМЕРА И УГЛА НАКЛОНА ДЛЯ КАЖДОГО ФОТО (Примерные значения) */
-        
-        /* Кигуруми */
-        .sc-photo-1 { top: 15%; left: 5%; width: 22%; transform: rotate(-5deg); transition-delay: 1.2s; }
-        /* Поцелуй */
-        .sc-photo-2 { top: 10%; right: 10%; width: 20%; transform: rotate(10deg); transition-delay: 1.4s; }
-        /* Группа */
-        .sc-photo-3 { top: 40%; left: 10%; width: 25%; transform: rotate(8deg); transition-delay: 1.6s; }
-        /* Селфи с бокалом */
-        .sc-photo-4 { top: 45%; right: 5%; width: 21%; transform: rotate(-10deg); transition-delay: 1.8s; }
-        /* Селфи в черном */
-        .sc-photo-5 { bottom: 10%; left: 15%; width: 20%; transform: rotate(-15deg); transition-delay: 2.0s; }
-        /* Улыбка */
-        .sc-photo-6 { bottom: 15%; right: 15%; width: 23%; transform: rotate(12deg); transition-delay: 2.2s; }
-
-        /* 7. ГИРЛЯНДЫ (String Lights) НА ФОНЕ */
-        #string-lights {
+        .poem-background-images img {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 3; opacity: 0.1;
+            object-fit: cover; /* Фон растягивается по всей ширине */
+            opacity: 0; transition: opacity 1.5s ease-in-out;
         }
-        .string-light { position: absolute; }
-        .sl-1 { top: 20%; left: 30%; width: 5px; height: 5px; background: #ffc978; border-radius: 50%; box-shadow: 0 0 10px #ffc978; }
-        /* Добавь больше огоньков... */
+        .poem-background-images img.active { opacity: 1; }
+
+        /* ТЕМНЫЙ ФИЛЬТР ПОВЕРХ ЖИВОГО ФОНА */
+        .poem-content::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); /* Черный цвет с прозрачностью 75% */
+            z-index: 2; /* Фильтр над живым фоном */
+        }
+
+        /* Переносим текст над фильтром */
+        .poem-content p, .poem-content .final-heart {
+            position: relative;
+            z-index: 3; /* Текст над фильтром */
+        }
+
+        p {
+            font-size: 1.4rem; line-height: 2.2; margin: 60px 0;
+            color: #f0f0f0; opacity: 0.1;
+            transform: translateY(20px); transition: all 1s ease-out;
+        }
+        p.visible { opacity: 1; transform: translateY(0); }
+        strong { color: #ff4d6d; font-weight: bold; }
+        .victory-text { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); font-style: italic; }
+
+        .final-heart { font-size: 4rem; color: #ff4d6d; margin-top: 80px; animation: pulse 2s infinite; }
+
+        /* АНИМАЦИИ */
+        @keyframes cakePulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes btnPulse { 0% { box-shadow: 0 0 10px #ff4d6d; } 50% { box-shadow: 0 0 25px #ff4d6d; } 100% { box-shadow: 0 0 10px #ff4d6d; } }
 
         /* Адаптация для мобильных */
         @media (max-width: 768px) {
-            #header-text { font-size: 2.2rem; }
-            #central-photo { max-width: 320px; }
-            .scattered-photo { width: 30%; } /* Увеличим размер для мобильных */
-            .sc-photo-1 { top: 18%; left: 8%; width: 28%; }
-            .sc-photo-2 { top: 15%; right: 12%; width: 26%; }
-            .sc-photo-3 { top: 45%; left: 15%; width: 30%; }
-            .sc-photo-4 { top: 48%; right: 10%; width: 28%; }
-            .sc-photo-5 { bottom: 8%; left: 20%; width: 26%; }
-            .sc-photo-6 { bottom: 10%; right: 18%; width: 28%; }
+            .poem-content { background-attachment: scroll; }
+            p { font-size: 1.2rem; line-height: 1.8; margin: 40px 0; }
         }
 
     </style>
 </head>
 <body>
 
-    <div id="collage-background"></div>
+    <canvas id="canvas"></canvas>
 
-    <div id="collage-container">
-        
-        <h1 id="header-text">С Днем Рождения!</h1>
-        
-        <img src="path/to/victoria_main.jpg" id="central-photo" alt="Виктория">
+    <div class="cake-button" id="cake-btn" onclick="resetWowEffect()">🎂</div>
 
-        <div id="scattered-photos">
-            <img src="path/to/victoria_kigurumi.jpg" class="scattered-photo sc-photo-1" alt="Вика Кигуруми">
-            <img src="path/to/victoria_kiss.jpg" class="scattered-photo sc-photo-2" alt="Вика Поцелуй">
-            <img src="path/to/victoria_group.jpg" class="scattered-photo sc-photo-3" alt="Вика Группа">
-            <img src="path/to/victoria_selfie_glass.jpg" class="scattered-photo sc-photo-4" alt="Вика Селфи">
-            <img src="path/to/victoria_selfie_black.jpg" class="scattered-photo sc-photo-5" alt="Вика Селфи 2">
-            <img src="path/to/victoria_smile.jpg" class="scattered-photo sc-photo-6" alt="Вика Улыбка">
+    <div class="top-section">
+        <div class="cake-start" id="cake-start">🎂</div>
+        <h1 id="title">С Днем Рождения!</h1>
+        <div class="photo-gallery" id="gallery">
+            <img src="image_4.png.JPG" alt="Вика Кигуруми">
+        </div>
+    </div>
+
+    <div class="poem-content" id="poem-zone">
+        <div class="poem-background-images" id="poem-bg-images">
+            <img src="image_5.png.JPG" class="active" alt="Фон 1">
+            <img src="image_6.png.JPG" alt="Фон 2">
+            <img src="image_7.png.JPG" alt="Фон 3">
+            <img src="image_8.png.JPG" alt="Фон 4">
         </div>
 
-        <div id="string-lights">
-            <div class="string-light sl-1"></div>
-            </div>
+        <p>Хочу сказать тебе большое спасибо за то, что ты смогла принять меня таким, какой я есть.</p>
+        <p>Я не всегда хорошо себя показывал, и да, тебе было со мной нелегко:</p>
+        <p>бесил тебя, донимал, доставал... Я бесконечно рад, что ты всё равно любишь меня и остаешься рядом.</p>
+        <p>Я очень ценю это и пытаюсь радовать тебя каждый день.</p>
 
+        <p>Дальше нас ждут серьезные испытания — мы будем мало видеться и проводить время вместе,</p>
+        <p>но главное — пройти этот этап.</p>
+        <p>Я буду стараться тебя радовать, поддерживать и хочу поздравить тебя <strong>с праздником,</strong></p>
+        <p style="font-size: 1.8rem;"><strong>с твоим 18-летием, зайка! Люблю тебя сильно!</strong></p>
+        
+        <p>Желаю, чтобы все твои мечты сбылись, чтобы ты была счастлива,</p>
+        <p>а родные всегда были рядом и дарили тепло!!!</p>
+
+        <p>Мы через многое прошли, и нам предстоит пройти еще больше,</p>
+        <p>преодолеть множество трудностей, но мы сможем,</p>
+        <p style="font-size: 1.6rem;"><strong>потому что твое имя, <span class="victory-text">Виктория</span>, означает Победу.</strong></p>
+        <p>Я верю в это. Обнимаю и целую.</p>
+
+        <p style="font-size: 1.2rem; font-style: italic; opacity: 0.8; padding-top: 40px;">
+            Это первая часть моего подарка тебе. Надеюсь, тебе понравится.</p>
+        <p style="font-size: 1.2rem; font-style: italic; opacity: 0.8; margin-top: -30px;">
+            Я не особо умею изливать душу, но я очень старался.</p>
+
+        <div class="final-heart">❤</div>
     </div>
 
     <script>
-        // --- АНИМАЦИЯ ПЛАВНОГО ПОЯВЛЕНИЯ ПРИ ЗАГРУЗКЕ ---
+        // --- КОД САЛЮТА ---
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticle(x, y, color) {
+            return {
+                x: x, y: y, size: Math.random() * 4 + 1,
+                speedX: (Math.random() - 0.5) * 8,
+                speedY: (Math.random() - 0.5) * 8,
+                opacity: 1, decay: Math.random() * 0.02 + 0.015,
+                color: color || `rgba(255, ${Math.random()*100}, ${Math.random()*100}, 1)`
+            };
+        }
+
+        function launchFirework() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * (canvas.height * 0.5);
+            const color = Math.random() > 0.5 ? '#fff' : `rgba(255, 100, 100, 1)`;
+            for (let i = 0; i < 35; i++) { particles.push(createParticle(x, y, color)); }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.opacity;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+                p.x += p.speedX; p.y += p.speedY; p.speedY += 0.06; p.opacity -= p.decay;
+                if (p.opacity <= 0) { particles.splice(i, 1); i--; }
+            }
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(animateParticles);
+        }
+
+        // --- ЛОГИКА ЭФФЕКТОВ ---
+        const cakeStart = document.getElementById('cake-start');
+        const title = document.getElementById('title');
+        const gallery = document.getElementById('gallery');
+        const cakeBtn = document.getElementById('cake-btn');
+        const poemZone = document.getElementById('poem-zone');
+        const poemBgImages = document.querySelectorAll('#poem-bg-images img');
+        let currentPoemBgImage = 0;
+        let poemBgInterval = null;
+
+        function startWowEffect() {
+            initCanvas();
+            animateParticles();
+            paragraphs.forEach(p => p.classList.remove('visible'));
+            paragraphs.forEach(p => observer.unobserve(p));
+            
+            launchFirework(); setTimeout(launchFirework, 300); setTimeout(launchFirework, 600);
+            
+            setTimeout(() => { cakeStart.classList.add('visible'); title.classList.add('visible'); }, 1500);
+            setTimeout(() => { gallery.classList.add('visible'); }, 3500); // Галерея статична
+            
+            // Секция поздравления с живым фоном тоже плавно проявляется
+            setTimeout(() => {
+                poemZone.style.opacity = '1'; 
+                cakeBtn.classList.add('visible');
+                paragraphs.forEach(p => observer.observe(p));
+                startPoemBgGallery(); // Запускаем переключение живого фона
+            }, 6000);
+        }
+
+        // --- ЖИВОЙ ФОН ЗА ТЕКСТОМ (ГАЛЕРЕЯ ДЛЯ ФОНА) ---
+        function startPoemBgGallery() {
+            if(poemBgInterval) clearInterval(poemBgInterval);
+            poemBgInterval = setInterval(() => {
+                poemBgImages[currentPoemBgImage].classList.remove('active');
+                currentPoemBgImage = (currentPoemBgImage + 1) % poemBgImages.length;
+                poemBgImages[currentPoemBgImage].classList.add('active');
+            }, 3000);
+        }
+
+        function resetWowEffect() {
+            window.scrollTo(0, 0);
+            cakeStart.classList.remove('visible'); title.classList.remove('visible');
+            gallery.classList.remove('visible'); cakeBtn.classList.remove('visible');
+            poemZone.style.opacity = '0';
+            if(poemBgInterval) clearInterval(poemBgInterval);
+            // Прячем все фоны, кроме первого
+            poemBgImages.forEach(img => img.classList.remove('active'));
+            poemBgImages[0].classList.add('active');
+            currentPoemBgImage = 0;
+            
+            startWowEffect();
+        }
+
+        // --- ПРОЯВЛЕНИЕ ТЕКСТА ---
+        const paragraphs = document.querySelectorAll('.poem-content p');
+        const observerOptions = { threshold: 0.3 }; // Текст проявляется чуть раньше
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); }
+            });
+        }, observerOptions);
+
         window.addEventListener('load', () => {
-            document.getElementById('header-text').classList.add('visible');
-            document.getElementById('central-photo').classList.add('visible');
-            const photos = document.querySelectorAll('.scattered-photo');
-            photos.forEach(photo => photo.classList.add('visible'));
+            startWowEffect();
         });
+        window.addEventListener('resize', initCanvas);
     </script>
 </body>
 </html>
